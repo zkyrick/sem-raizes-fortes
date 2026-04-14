@@ -1,1 +1,863 @@
+<!doctype html>
+<html lang="pt-BR" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NEWMIND - Saúde Mental</title>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --c-bg:           #0d1b2a;
+      --c-surface:      rgba(255,255,255,0.04);
+      --c-border:       rgba(96,165,250,0.20);
+      --c-border-hover: rgba(96,165,250,0.50);
+      --c-blue:         #60a5fa;
+      --c-blue-dim:     rgba(96,165,250,0.13);
+      --c-text:         #dde6f0;
+      --c-muted:        rgba(186,210,235,0.50);
+      --c-accent:       #93c5fd;
+      --c-teal:         #2dd4bf;
+      --c-rose:         #fb7185;
+      --c-amber:        #fbbf24;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { height:100%; width:100%; }
+    body {
+      background: var(--c-bg);
+      background-image:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(59,130,246,0.14) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(45,212,191,0.07) 0%, transparent 50%);
+      font-family: 'DM Sans', sans-serif;
+      color: var(--c-text);
+    }
+    h1,h2,h3 { font-family: 'DM Serif Display', serif; }
+    .app-wrapper { height:100%; width:100%; overflow-y:auto; }
 
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes spin   { to{transform:rotate(360deg)} }
+    @keyframes pulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+    @keyframes glow   { 0%,100%{box-shadow:0 0 8px rgba(96,165,250,0.25)} 50%{box-shadow:0 0 22px rgba(96,165,250,0.55)} }
+    @keyframes breatheIn  { 0%{transform:scale(1);box-shadow:0 0 8px rgba(45,212,191,0.25)} 100%{transform:scale(1.22);box-shadow:0 0 40px rgba(45,212,191,0.6)} }
+    @keyframes breatheHold{ 0%,100%{box-shadow:0 0 30px rgba(45,212,191,0.5)} 50%{box-shadow:0 0 40px rgba(45,212,191,0.7)} }
+    @keyframes breatheOut { 0%{transform:scale(1.22);box-shadow:0 0 40px rgba(45,212,191,0.6)} 100%{transform:scale(1);box-shadow:0 0 8px rgba(45,212,191,0.25)} }
+
+    .fade-up { animation: fadeUp .55s ease-out both; }
+    .pulse-anim { animation: pulse 2.2s ease-in-out infinite; }
+    .glow-ring  { animation: glow 2.5s ease-in-out infinite; }
+
+    .card {
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      backdrop-filter: blur(14px);
+      border-radius: 16px;
+      transition: border-color .25s, box-shadow .25s;
+    }
+    .card:hover { border-color: var(--c-border-hover); box-shadow: 0 8px 36px rgba(59,130,246,0.10); }
+
+    .btn { padding:10px 20px; border-radius:10px; font-weight:600; font-size:.875rem; cursor:pointer; border:none; transition:all .2s; }
+    .btn-primary { background:linear-gradient(135deg,#3b82f6,#1d4ed8); color:#fff; }
+    .btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(59,130,246,0.40); }
+    .btn-outline { background:transparent; border:1.5px solid var(--c-border); color:var(--c-accent); }
+    .btn-outline:hover { border-color:var(--c-blue); background:var(--c-blue-dim); }
+    .btn-teal { background:linear-gradient(135deg,#14b8a6,#0d9488); color:#fff; }
+    .btn-teal:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(20,184,166,0.35); }
+    .btn-rose { background:linear-gradient(135deg,#f43f5e,#be123c); color:#fff; }
+    .btn-rose:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(244,63,94,0.35); }
+    .btn-green { background:linear-gradient(135deg,#22c55e,#16a34a); color:#fff; }
+    .btn-green:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(34,197,94,0.35); }
+
+    .input {
+      width:100%; background:rgba(255,255,255,0.05); border:1.5px solid var(--c-border);
+      border-radius:10px; padding:12px 14px; color:var(--c-text); font-family:'DM Sans',sans-serif;
+      transition:border-color .2s;
+    }
+    .input:focus { outline:none; border-color:var(--c-blue); }
+    .input::placeholder { color:var(--c-muted); }
+    select.input option { background:#0f2744; color:#dde6f0; }
+
+    .nav-active { color: var(--c-blue) !important; border-bottom-color: var(--c-blue) !important; background: var(--c-blue-dim); }
+    .nav-tab { border-bottom: 2px solid transparent; color: var(--c-muted); transition: color .2s, background .2s; }
+    .nav-tab:hover { color: var(--c-accent); }
+
+    .hidden { display:none !important; }
+    .content-section { display: block; }
+    .content-section.hidden { display: none !important; }
+
+    .sleep-feedback-box { border-radius:12px; padding:16px 20px; margin-top:16px; border:1.5px solid; animation: fadeUp .4s ease-out; }
+    .sleep-ok   { border-color:rgba(34,197,94,.5); background:rgba(34,197,94,.07); color:#86efac; }
+    .sleep-warn { border-color:rgba(251,191,36,.5); background:rgba(251,191,36,.07); color:#fde68a; }
+    .sleep-bad  { border-color:rgba(251,113,133,.5); background:rgba(251,113,133,.07); color:#fca5a5; }
+
+    .prof-card { overflow:hidden; }
+    .prof-card .video-wrap { position:relative; padding-top:56.25%; background:#0a1929; border-radius:10px; overflow:hidden; }
+    .prof-card .video-placeholder {
+      position:absolute; inset:0; display:flex; flex-direction:column; align-items:center;
+      justify-content:center; gap:8px; background:linear-gradient(135deg,#0f2744,#1e3a5f);
+      color:var(--c-muted); font-size:.8rem;
+    }
+
+    #distraction-card {
+      background: linear-gradient(135deg, rgba(45,212,191,0.07), rgba(59,130,246,0.08));
+      border: 1.5px solid rgba(96,165,250,0.22);
+      border-radius:16px; padding:32px; text-align:center;
+      min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    }
+
+    .checkin-progress { height:8px; background:rgba(255,255,255,0.08); border-radius:99px; overflow:hidden; }
+    .checkin-progress-fill { height:100%; border-radius:99px; transition:width .4s ease; }
+
+    .score-badge {
+      width:88px; height:88px; border-radius:50%; display:flex; flex-direction:column;
+      align-items:center; justify-content:center; border:2.5px solid; font-family:'DM Serif Display',serif;
+    }
+
+    .modal-overlay { background:rgba(0,0,0,.65); backdrop-filter:blur(6px); }
+
+    #prof-alert {
+      background:linear-gradient(135deg,rgba(251,191,36,.09),rgba(244,63,94,.07));
+      border:1.5px solid rgba(251,191,36,.4); border-radius:14px; padding:20px 24px;
+    }
+
+    input[type=range] { -webkit-appearance:none; width:100%; height:6px; background:rgba(255,255,255,0.12); border-radius:99px; outline:none; cursor:pointer; }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:18px; height:18px; border-radius:50%; background:var(--c-blue); box-shadow:0 0 8px rgba(96,165,250,0.5); }
+
+    .d1{animation-delay:.05s} .d2{animation-delay:.1s} .d3{animation-delay:.15s} .d4{animation-delay:.2s} .d5{animation-delay:.25s}
+
+    #breathing-circle {
+      width:140px; height:140px; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-weight:600; font-size:.9rem; text-align:center; line-height:1.35;
+      background:linear-gradient(135deg,rgba(45,212,191,0.15),rgba(59,130,246,0.12));
+      border:2px solid rgba(45,212,191,0.45);
+      color:var(--c-text);
+    }
+    #breathing-circle.phase-inspire { animation: breatheIn 4s forwards ease-in-out; border-color: rgba(45,212,191,0.8); }
+    #breathing-circle.phase-hold    { animation: breatheHold 4s forwards ease-in-out; border-color: rgba(251,191,36,0.8); }
+    #breathing-circle.phase-expire  { animation: breatheOut 4s forwards ease-in-out; border-color: rgba(96,165,250,0.8); }
+  </style>
+</head>
+<body class="h-full">
+<div class="app-wrapper h-full">
+
+<!-- HEADER -->
+<header class="border-b sticky top-0 z-40 backdrop-blur-xl" style="background:rgba(13,27,42,0.88);border-color:rgba(96,165,250,0.18)">
+  <div class="max-w-6xl mx-auto px-6 py-5">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <div class="text-3xl pulse-anim">🧠</div>
+        <div>
+          <h1 class="text-2xl text-white leading-tight">NEWMIND</h1>
+          <p class="text-xs" style="color:var(--c-muted)">Sua jornada para melhor saúde mental</p>
+        </div>
+      </div>
+      <div id="user-display" class="flex items-center gap-3">
+        <button class="nav-tab nav-active py-3 px-4 border-b-2 text-sm font-semibold" data-tab="auth">🔐 Login</button>
+        <div id="progress-indicator" class="hidden">
+          <div class="w-16 h-16 rounded-full p-0.5 glow-ring" style="background:linear-gradient(135deg,#3b82f6,#2dd4bf)">
+            <div class="w-full h-full rounded-full flex flex-col items-center justify-center" style="background:#0d1b2a">
+              <span id="progress-percent" class="text-sm font-bold" style="color:var(--c-accent)">0%</span>
+              <span class="text-xs" style="color:var(--c-muted)">Perfil</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav class="border-b sticky top-[73px] z-30 backdrop-blur-xl" style="background:rgba(13,27,42,0.82);border-color:rgba(96,165,250,0.12)">
+  <div class="max-w-6xl mx-auto px-4 flex gap-1 overflow-x-auto">
+    <button class="nav-tab py-3 px-3 border-b-2 text-sm font-medium whitespace-nowrap" data-tab="dashboard">📊 Dashboard</button>
+    <button class="nav-tab py-3 px-3 border-b-2 text-sm font-medium whitespace-nowrap" data-tab="monitor">📝 Monitor</button>
+    <button class="nav-tab py-3 px-3 border-b-2 text-sm font-medium whitespace-nowrap" data-tab="sono">🌙 Sono</button>
+    <button class="nav-tab py-3 px-3 border-b-2 text-sm font-medium whitespace-nowrap" data-tab="wellness">🧘 Bem-estar</button>
+    <button class="nav-tab py-3 px-3 border-b-2 text-sm font-medium whitespace-nowrap" data-tab="checkin">📅 Check-in</button>
+    <button class="nav-tab py-3 px-3 border-b-2 text-sm font-medium whitespace-nowrap" data-tab="profissionais">👩‍⚕️ Profissionais</button>
+    <button class="nav-tab py-3 px-3 border-b-2 text-sm font-medium whitespace-nowrap" data-tab="distracao">🎯 Distrações</button>
+    <button class="nav-tab py-3 px-3 border-b-2 text-sm font-medium whitespace-nowrap" data-tab="emergency">🛟 SOS</button>
+  </div>
+</nav>
+
+<!-- MAIN -->
+<main class="max-w-6xl mx-auto px-4 py-10">
+
+  <!-- AUTH -->
+  <section id="auth-section" class="content-section">
+    <div class="max-w-md mx-auto">
+      <div id="login-tab" class="card p-8 fade-up">
+        <h2 class="text-3xl text-white mb-1 text-center">Bem-vindo de Volta</h2>
+        <p class="text-center mb-8" style="color:var(--c-muted)">Faça login para continuar sua jornada</p>
+        <form id="login-form" class="space-y-5">
+          <div><label class="block text-sm font-semibold mb-2 text-white">Email</label>
+            <input id="login-email" type="email" placeholder="maria@example.com" class="input" required></div>
+          <div><label class="block text-sm font-semibold mb-2 text-white">Senha</label>
+            <input id="login-password" type="password" placeholder="••••••••" class="input" required></div>
+          <button type="submit" class="btn btn-primary w-full py-3">Entrar</button>
+          <p class="text-center text-sm" style="color:var(--c-muted)">Não tem conta?
+            <button type="button" id="switch-to-signup" class="underline font-semibold" style="color:var(--c-accent)">Cadastre-se</button></p>
+        </form>
+      </div>
+      <div id="signup-tab" class="card p-8 fade-up hidden">
+        <h2 class="text-3xl text-white mb-1 text-center">Crie sua Conta</h2>
+        <p class="text-center mb-8" style="color:var(--c-muted)">Comece sua jornada pela saúde mental</p>
+        <form id="signup-form" class="space-y-5">
+          <div><label class="block text-sm font-semibold mb-2 text-white">Nome</label>
+            <input id="signup-name" type="text" placeholder="Seu nome" class="input" required></div>
+          <div><label class="block text-sm font-semibold mb-2 text-white">Email</label>
+            <input id="signup-email" type="email" placeholder="seu@email.com" class="input" required></div>
+          <div><label class="block text-sm font-semibold mb-2 text-white">Senha</label>
+            <input id="signup-password" type="password" placeholder="••••••••" class="input" required></div>
+          <div><label class="block text-sm font-semibold mb-2 text-white">Confirmar Senha</label>
+            <input id="signup-confirm" type="password" placeholder="••••••••" class="input" required></div>
+          <button type="submit" class="btn btn-primary w-full py-3">Criar Conta</button>
+          <p class="text-center text-sm" style="color:var(--c-muted)">Já tem conta?
+            <button type="button" id="switch-to-login" class="underline font-semibold" style="color:var(--c-accent)">Entre aqui</button></p>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboard-section" class="content-section hidden">
+    <div class="mb-10 fade-up">
+      <h2 class="text-4xl text-white mb-1">Bem-vindo à NEWMIND</h2>
+      <p style="color:var(--c-muted)">Acompanhe seu bem-estar mental diariamente</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+      <div class="card p-6 fade-up d1">
+        <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--c-muted)">Meu Humor</p>
+        <div class="flex items-center justify-between">
+          <span id="mood-status" class="text-5xl">😊</span>
+          <p id="mood-text" class="text-xl font-semibold" style="color:var(--c-accent)">Bom</p>
+        </div>
+      </div>
+      <div class="card p-6 fade-up d2">
+        <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--c-muted)">Ansiedade</p>
+        <div class="checkin-progress mb-3">
+          <div id="anxiety-bar-fill" class="checkin-progress-fill" style="width:50%;background:linear-gradient(90deg,#fb7185,#f43f5e)"></div>
+        </div>
+        <p id="anxiety-text" class="text-xl font-semibold" style="color:var(--c-rose)">5/10</p>
+      </div>
+      <div class="card p-6 fade-up d3">
+        <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--c-muted)">Sono</p>
+        <div class="flex items-center justify-between">
+          <span id="sleep-status" class="text-5xl">😴</span>
+          <p id="sleep-text" class="text-xl font-semibold" style="color:#93c5fd">Regular</p>
+        </div>
+      </div>
+      <div class="card p-6 fade-up d4">
+        <p class="text-xs font-semibold uppercase tracking-widest mb-4" style="color:var(--c-muted)">Ações Rápidas</p>
+        <button id="meditate-btn" class="btn btn-primary w-full mb-2 text-sm">🧘 Meditar</button>
+        <button class="btn btn-teal w-full text-sm" onclick="navigateTo('wellness')">🌬️ Respiração</button>
+      </div>
+    </div>
+    <div id="prof-alert" class="hidden mb-6 fade-up">
+      <div class="flex gap-4 items-start">
+        <span class="text-3xl">🌻</span>
+        <div>
+          <p class="font-semibold text-amber-300 text-lg mb-1">Cuidado e atenção para você</p>
+          <p style="color:var(--c-muted)">Seus últimos check-ins indicam um período desafiador. Considere agendar uma conversa com um profissional de saúde mental. Veja nosso <button onclick="navigateTo('profissionais')" class="underline text-amber-300 font-semibold">Diretório de Profissionais</button>.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MONITOR -->
+  <section id="monitor-section" class="content-section hidden">
+    <div class="card p-8 fade-up">
+      <h2 class="text-3xl text-white mb-8">📝 Monitor Diário</h2>
+      <form id="monitor-form" class="space-y-8">
+        <div>
+          <label class="block font-semibold mb-4 text-white">Como você se sente?</label>
+          <input type="hidden" id="mood-input" value="bom">
+          <div class="grid grid-cols-5 gap-3">
+            <button type="button" class="mood-option border-2 p-4 rounded-xl hover:border-blue-400 transition text-center" style="border-color:var(--c-border)" data-value="muito ruim">😭<br><span class="text-xs mt-1 block" style="color:var(--c-muted)">Muito Ruim</span></button>
+            <button type="button" class="mood-option border-2 p-4 rounded-xl hover:border-blue-400 transition text-center" style="border-color:var(--c-border)" data-value="ruim">😢<br><span class="text-xs mt-1 block" style="color:var(--c-muted)">Ruim</span></button>
+            <button type="button" class="mood-option border-2 p-4 rounded-xl hover:border-blue-400 transition text-center" style="border-color:var(--c-border)" data-value="neutro">😐<br><span class="text-xs mt-1 block" style="color:var(--c-muted)">Neutro</span></button>
+            <button type="button" class="mood-option border-2 p-4 rounded-xl hover:border-blue-400 transition text-center" style="border-color:var(--c-blue)" data-value="bom">🙂<br><span class="text-xs mt-1 block" style="color:var(--c-accent)">Bom</span></button>
+            <button type="button" class="mood-option border-2 p-4 rounded-xl hover:border-blue-400 transition text-center" style="border-color:var(--c-border)" data-value="excelente">😄<br><span class="text-xs mt-1 block" style="color:var(--c-muted)">Excelente</span></button>
+          </div>
+        </div>
+        <div class="p-6 rounded-xl" style="background:rgba(59,130,246,0.05);border:1px solid var(--c-border)">
+          <h3 class="text-xl text-white mb-6">🧠 Questionário de Ansiedade</h3>
+          <input type="hidden" id="anxiety-input" value="0">
+          <div id="anxiety-questions" class="space-y-6">
+            <div><p class="font-semibold text-white mb-3">1. Você se sente nervoso ou inquieto?</p><div class="grid grid-cols-4 gap-2"><button type="button" class="anxiety-q1 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="0">Nunca</button><button type="button" class="anxiety-q1 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="3">Às vezes</button><button type="button" class="anxiety-q1 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="6">Frequente</button><button type="button" class="anxiety-q1 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="10">Muito frequente</button></div></div>
+            <div><p class="font-semibold text-white mb-3">2. Você tem dificuldade em controlar suas preocupações?</p><div class="grid grid-cols-4 gap-2"><button type="button" class="anxiety-q2 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="0">Não</button><button type="button" class="anxiety-q2 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="3">Um pouco</button><button type="button" class="anxiety-q2 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="6">Bastante</button><button type="button" class="anxiety-q2 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="10">Completamente</button></div></div>
+            <div><p class="font-semibold text-white mb-3">3. Você tem taquicardia ou falta de ar?</p><div class="grid grid-cols-4 gap-2"><button type="button" class="anxiety-q3 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="0">Nunca</button><button type="button" class="anxiety-q3 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="3">Raramente</button><button type="button" class="anxiety-q3 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="6">Às vezes</button><button type="button" class="anxiety-q3 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="10">Constantemente</button></div></div>
+            <div><p class="font-semibold text-white mb-3">4. Você tem problemas para dormir?</p><div class="grid grid-cols-4 gap-2"><button type="button" class="anxiety-q4 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="0">Nenhum</button><button type="button" class="anxiety-q4 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="3">Leve</button><button type="button" class="anxiety-q4 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="6">Moderado</button><button type="button" class="anxiety-q4 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="10">Severo</button></div></div>
+            <div><p class="font-semibold text-white mb-3">5. Você evita situações por medo ou ansiedade?</p><div class="grid grid-cols-4 gap-2"><button type="button" class="anxiety-q5 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="0">Nunca</button><button type="button" class="anxiety-q5 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="3">Algumas vezes</button><button type="button" class="anxiety-q5 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="6">Frequentemente</button><button type="button" class="anxiety-q5 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="10">Sempre</button></div></div>
+            <div><p class="font-semibold text-white mb-3">6. Você se sente tenso ou com músculos rígidos?</p><div class="grid grid-cols-4 gap-2"><button type="button" class="anxiety-q6 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="0">Nunca</button><button type="button" class="anxiety-q6 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="3">Às vezes</button><button type="button" class="anxiety-q6 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="6">Frequente</button><button type="button" class="anxiety-q6 border-2 p-3 rounded-lg text-sm text-white transition" style="border-color:var(--c-border)" data-score="10">Sempre</button></div></div>
+          </div>
+          <div class="mt-6 p-4 rounded-xl" style="background:rgba(0,0,0,0.25);border:1px solid var(--c-border)">
+            <p class="text-xs mb-2" style="color:var(--c-muted)">Nível de Ansiedade Calculado:</p>
+            <div class="flex items-center gap-3">
+              <div id="calc-anxiety-bar" class="flex-1 checkin-progress"><div class="checkin-progress-fill" style="width:0%;background:linear-gradient(90deg,#22c55e,#f43f5e)"></div></div>
+              <span id="anxiety-value" class="text-2xl font-bold w-10" style="color:var(--c-rose)">0</span>
+            </div>
+          </div>
+        </div>
+        <div><label class="block font-semibold mb-3 text-white">Qualidade do Sono</label>
+          <select id="sleep-input" class="input"><option value="">Selecione...</option><option value="muito ruim">Muito Ruim</option><option value="ruim">Ruim</option><option value="regular">Regular</option><option value="bom">Bom</option><option value="excelente">Excelente</option></select></div>
+        <div><label class="block font-semibold mb-3 text-white">Notas</label>
+          <textarea id="notes-input" class="input h-24 resize-none" placeholder="Escreva seus pensamentos..."></textarea></div>
+        <button type="submit" class="btn btn-primary w-full py-3">💾 Salvar Progresso</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- SONO -->
+  <section id="sono-section" class="content-section hidden">
+    <div class="max-w-2xl mx-auto">
+      <div class="mb-8 fade-up"><h2 class="text-4xl text-white mb-2">🌙 Monitor de Sono Inteligente</h2><p style="color:var(--c-muted)">Insira seus horários e receba um feedback personalizado sobre a qualidade do seu descanso.</p></div>
+      <div class="card p-8 fade-up d1">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div><label class="block font-semibold mb-2 text-white">🕙 Horário que dormiu</label><input type="time" id="sleep-start" class="input" value="23:00"></div>
+          <div><label class="block font-semibold mb-2 text-white">☀️ Horário que acordou</label><input type="time" id="sleep-end" class="input" value="07:00"></div>
+        </div>
+        <div class="mb-6"><label class="block font-semibold mb-2 text-white">📅 Data do sono</label><input type="date" id="sleep-date" class="input"></div>
+        <button id="calc-sleep-btn" class="btn btn-primary w-full py-3 text-base">🔍 Analisar Meu Sono</button>
+        <div id="sleep-result" class="hidden mt-6"></div>
+      </div>
+      <div class="card p-8 mt-6 fade-up d2"><h3 class="text-xl text-white mb-5">📊 Histórico de Sono</h3><div id="sleep-history" class="space-y-3"><p style="color:var(--c-muted)" class="text-center py-4">Nenhum registro ainda.</p></div></div>
+      <div class="card p-8 mt-6 fade-up d3" style="border-color:rgba(45,212,191,0.3)">
+        <h3 class="text-xl text-white mb-4">💡 Dicas de Higiene do Sono</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl" style="background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.2)"><p class="font-semibold mb-1" style="color:var(--c-teal)">🕐 Horário regular</p><p class="text-sm" style="color:var(--c-muted)">Durma e acorde sempre no mesmo horário, inclusive nos fins de semana.</p></div>
+          <div class="p-4 rounded-xl" style="background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.2)"><p class="font-semibold mb-1" style="color:var(--c-teal)">📵 Sem telas</p><p class="text-sm" style="color:var(--c-muted)">Evite celular, TV e computador pelo menos 1h antes de dormir.</p></div>
+          <div class="p-4 rounded-xl" style="background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.2)"><p class="font-semibold mb-1" style="color:var(--c-teal)">🌡️ Ambiente fresco</p><p class="text-sm" style="color:var(--c-muted)">Mantenha o quarto entre 18°C e 21°C para facilitar o sono profundo.</p></div>
+          <div class="p-4 rounded-xl" style="background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.2)"><p class="font-semibold mb-1" style="color:var(--c-teal)">☕ Evite cafeína</p><p class="text-sm" style="color:var(--c-muted)">Não consuma cafeína depois das 14h para não prejudicar o adormecimento.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEM-ESTAR -->
+  <section id="wellness-section" class="content-section hidden">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="card p-8 fade-up">
+        <h2 class="text-2xl text-white mb-2">🌬️ Respiração 4-4-4</h2>
+        <p class="text-sm mb-6" style="color:var(--c-muted)">3 ciclos completos: Inspire 4s → Segure 4s → Expire 4s.</p>
+        <div class="flex flex-col items-center">
+          <div id="breath-phase-label" class="text-xs font-semibold uppercase tracking-widest mb-3" style="color:var(--c-teal);min-height:18px;"></div>
+          <div id="breathing-circle">Pronto?</div>
+          <div id="breathing-timer" class="text-6xl font-bold mt-5 mb-2" style="color:var(--c-teal);font-family:'DM Serif Display',serif;min-height:72px;display:flex;align-items:center;justify-content:center;">-</div>
+          <div id="breath-cycles" class="flex gap-2 mb-6">
+            <div class="w-3 h-3 rounded-full" style="background:rgba(255,255,255,0.12)" id="bc-1"></div>
+            <div class="w-3 h-3 rounded-full" style="background:rgba(255,255,255,0.12)" id="bc-2"></div>
+            <div class="w-3 h-3 rounded-full" style="background:rgba(255,255,255,0.12)" id="bc-3"></div>
+          </div>
+        </div>
+        <button id="breathing-btn" class="btn btn-teal w-full py-3">▶ Iniciar Exercício</button>
+        <button id="breathing-stop-btn" class="hidden btn btn-rose w-full py-3 mt-2">⏹ Parar</button>
+      </div>
+      <div class="card p-8 fade-up d1">
+        <h2 class="text-2xl text-white mb-4">🧘 Meditação Guiada</h2>
+        <p class="text-sm mb-4" style="color:var(--c-muted)">Dedique 5 minutos para si mesmo. Encontre um lugar tranquilo e comece.</p>
+        <div id="meditation-timer" class="text-4xl font-bold text-center mb-6 h-12" style="color:var(--c-accent);font-family:'DM Serif Display',serif;">-</div>
+        <button id="meditation-btn" class="btn btn-primary w-full mb-3">Iniciar Meditação</button>
+        <button id="meditation-stop-btn" class="hidden btn btn-rose w-full">⏹️ Parar Meditação</button>
+      </div>
+      <div class="card p-8 fade-up d2">
+        <h2 class="text-2xl text-white mb-4">💝 Prática de Gratidão</h2>
+        <textarea id="gratitude-input" class="input h-20 resize-none mb-4" placeholder="O que você é grato hoje?"></textarea>
+        <button id="gratitude-btn" class="btn btn-primary w-full">Registrar Gratidão</button>
+      </div>
+      <div class="card p-8 fade-up d3">
+        <div class="flex items-center justify-between mb-6"><h2 class="text-2xl text-white">🎵 Sons Relaxantes</h2><button id="toggle-sounds-btn" class="btn btn-outline text-sm px-3 py-2">Ver Sons</button></div>
+        <p class="text-sm mb-4" style="color:var(--c-muted)">Ouça sons naturais para acalmar sua mente.</p>
+        <div id="sounds-container" class="space-y-3 hidden">
+          <div class="flex items-center justify-between p-4 rounded-xl" style="border:1.5px solid var(--c-border)"><div class="flex items-center gap-3"><span class="text-3xl">🌊</span><div><p class="font-semibold text-white text-sm">Ruído Marrom</p><p class="text-xs" style="color:var(--c-muted)">Sons calmantes e profundos</p></div></div><button class="relaxing-sound-btn btn btn-teal text-sm px-4 py-2" data-sound="ocean">Ouvir</button></div>
+          <div class="flex items-center justify-between p-4 rounded-xl" style="border:1.5px solid var(--c-border)"><div class="flex items-center gap-3"><span class="text-3xl">⛈️</span><div><p class="font-semibold text-white text-sm">Trovoada com Chuva</p><p class="text-xs" style="color:var(--c-muted)">Som atmosférico relaxante</p></div></div><button class="relaxing-sound-btn btn btn-teal text-sm px-4 py-2" data-sound="thunder">Ouvir</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-8">
+      <div class="card p-6 fade-up"><p class="text-xs uppercase tracking-widest font-semibold mb-4" style="color:var(--c-muted)">Total de Registros</p><p id="total-records" class="text-5xl font-bold" style="color:var(--c-accent);font-family:'DM Serif Display',serif;">0</p></div>
+      <div class="card p-6 fade-up d1"><p class="text-xs uppercase tracking-widest font-semibold mb-4" style="color:var(--c-muted)">Humor Predominante</p><p id="dominant-mood-emoji" class="text-5xl mb-2">😊</p><p id="dominant-mood-text" class="font-semibold" style="color:var(--c-accent)">Sem dados</p></div>
+      <div class="card p-6 fade-up d2"><p class="text-xs uppercase tracking-widest font-semibold mb-4" style="color:var(--c-muted)">Ansiedade Média</p><div class="checkin-progress mb-3"><div id="avg-anxiety-bar-fill" class="checkin-progress-fill" style="width:50%;background:linear-gradient(90deg,#22c55e,#f43f5e)"></div></div><p id="avg-anxiety-value" class="text-2xl font-bold" style="color:var(--c-rose)">0/10</p></div>
+    </div>
+    <div class="card p-8 mt-6 fade-up"><h3 class="text-2xl text-white mb-6">Últimos Registros</h3><div id="recent-entries" class="space-y-4"><p class="text-center py-8" style="color:var(--c-muted)">Nenhum registro ainda.</p></div></div>
+  </section>
+
+  <!-- CHECK-IN -->
+  <section id="checkin-section" class="content-section hidden">
+    <div class="max-w-2xl mx-auto">
+      <div class="mb-8 fade-up"><h2 class="text-4xl text-white mb-2">📅 Check-in Mensal</h2><p style="color:var(--c-muted)">5 perguntas rápidas para avaliar como você está se sentindo este mês.</p></div>
+      <div class="card p-8 fade-up d1">
+        <form id="checkin-form" class="space-y-8">
+          <div><p class="font-semibold text-white mb-1">1. Como está seu humor geral este mês?</p><p class="text-sm mb-4" style="color:var(--c-muted)">1 = muito ruim · 5 = excelente</p><div class="flex items-center gap-4"><span class="text-sm" style="color:var(--c-muted)">1</span><input type="range" id="ci-humor" min="1" max="5" value="3" class="flex-1"><span class="text-sm" style="color:var(--c-muted)">5</span><span id="ci-humor-val" class="w-6 text-center font-bold" style="color:var(--c-accent)">3</span></div></div>
+          <div><p class="font-semibold text-white mb-1">2. Qual o nível de ansiedade que sentiu?</p><p class="text-sm mb-4" style="color:var(--c-muted)">1 = nenhuma · 5 = intensa</p><div class="flex items-center gap-4"><span class="text-sm" style="color:var(--c-muted)">1</span><input type="range" id="ci-ansiedade" min="1" max="5" value="3" class="flex-1"><span class="text-sm" style="color:var(--c-muted)">5</span><span id="ci-ansiedade-val" class="w-6 text-center font-bold" style="color:var(--c-rose)">3</span></div></div>
+          <div><p class="font-semibold text-white mb-1">3. Como está sua disposição e energia?</p><p class="text-sm mb-4" style="color:var(--c-muted)">1 = exausto · 5 = cheio de energia</p><div class="flex items-center gap-4"><span class="text-sm" style="color:var(--c-muted)">1</span><input type="range" id="ci-disposicao" min="1" max="5" value="3" class="flex-1"><span class="text-sm" style="color:var(--c-muted)">5</span><span id="ci-disposicao-val" class="w-6 text-center font-bold" style="color:var(--c-teal)">3</span></div></div>
+          <div><p class="font-semibold text-white mb-1">4. Você conseguiu dormir bem?</p><div class="grid grid-cols-3 gap-3 mt-3"><button type="button" class="ci-sleep-opt border-2 p-3 rounded-xl text-sm font-medium transition text-white" style="border-color:var(--c-border)" data-val="1">😴 Raramente</button><button type="button" class="ci-sleep-opt border-2 p-3 rounded-xl text-sm font-medium transition text-white" style="border-color:var(--c-border)" data-val="3">😐 Às vezes</button><button type="button" class="ci-sleep-opt border-2 p-3 rounded-xl text-sm font-medium transition text-white" style="border-color:var(--c-border)" data-val="5">😌 Sempre</button></div><input type="hidden" id="ci-sono" value="3"></div>
+          <div><p class="font-semibold text-white mb-1">5. Você se sentiu socialmente conectado?</p><div class="grid grid-cols-3 gap-3 mt-3"><button type="button" class="ci-social-opt border-2 p-3 rounded-xl text-sm font-medium transition text-white" style="border-color:var(--c-border)" data-val="1">😞 Isolado</button><button type="button" class="ci-social-opt border-2 p-3 rounded-xl text-sm font-medium transition text-white" style="border-color:var(--c-border)" data-val="3">🤝 Neutro</button><button type="button" class="ci-social-opt border-2 p-3 rounded-xl text-sm font-medium transition text-white" style="border-color:var(--c-border)" data-val="5">🌟 Conectado</button></div><input type="hidden" id="ci-social" value="3"></div>
+          <button type="submit" class="btn btn-primary w-full py-3 text-base">📊 Ver Minha Avaliação</button>
+        </form>
+        <div id="checkin-result" class="hidden mt-8"></div>
+      </div>
+      <div class="card p-8 mt-6 fade-up d2"><h3 class="text-xl text-white mb-5">📈 Histórico de Check-ins</h3><div id="checkin-history" class="space-y-3"><p class="text-center py-4" style="color:var(--c-muted)">Nenhum check-in registrado.</p></div></div>
+    </div>
+  </section>
+
+  <!-- PROFISSIONAIS -->
+  <section id="profissionais-section" class="content-section hidden">
+    <div class="mb-8 fade-up"><h2 class="text-4xl text-white mb-2">👩‍⚕️ Profissionais de Saúde Mental</h2><p style="color:var(--c-muted)">Psicólogos e terapeutas em São Domingos do Maranhão e região — prontos para te ouvir.</p></div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="card prof-card p-0 fade-up d1 overflow-hidden"><div class="video-wrap mx-4 mt-4"><div class="video-placeholder"><span class="text-4xl">🎬</span><span>Vídeo de apresentação</span><span class="text-xs opacity-60">Em breve</span></div></div><div class="p-5"><div class="flex items-start justify-between mb-2"><div><h3 class="text-lg text-white font-semibold" style="font-family:'DM Serif Display',serif;">Dra. Ana Beatriz Lima</h3><p class="text-xs font-medium" style="color:var(--c-accent)">Psicóloga Clínica · CRP 11/12345</p></div><span class="text-2xl">🌸</span></div><p class="text-sm mb-4" style="color:var(--c-muted)">Especialista em ansiedade, depressão e terapia cognitivo-comportamental. 8 anos de experiência.</p><div class="flex flex-col gap-2"><a href="https://wa.me/5598999991111" target="_blank" class="btn btn-green w-full text-center text-sm py-2.5">💬 WhatsApp</a><a href="tel:+5598999991111" class="btn btn-outline w-full text-center text-sm py-2.5">📞 Ligar</a></div></div></div>
+      <div class="card prof-card p-0 fade-up d2 overflow-hidden"><div class="video-wrap mx-4 mt-4"><div class="video-placeholder"><span class="text-4xl">🎬</span><span>Vídeo de apresentação</span><span class="text-xs opacity-60">Em breve</span></div></div><div class="p-5"><div class="flex items-start justify-between mb-2"><div><h3 class="text-lg text-white font-semibold" style="font-family:'DM Serif Display',serif;">Dr. Carlos Mendes</h3><p class="text-xs font-medium" style="color:var(--c-accent)">Psicólogo · CRP 11/67890</p></div><span class="text-2xl">🌿</span></div><p class="text-sm mb-4" style="color:var(--c-muted)">Foco em saúde mental masculina, trauma e burnout. Abordagem humanista e integrativa.</p><div class="flex flex-col gap-2"><a href="https://wa.me/5598999992222" target="_blank" class="btn btn-green w-full text-center text-sm py-2.5">💬 WhatsApp</a><a href="tel:+5598999992222" class="btn btn-outline w-full text-center text-sm py-2.5">📞 Ligar</a></div></div></div>
+      <div class="card prof-card p-0 fade-up d3 overflow-hidden"><div class="video-wrap mx-4 mt-4"><div class="video-placeholder"><span class="text-4xl">🎬</span><span>Vídeo de apresentação</span><span class="text-xs opacity-60">Em breve</span></div></div><div class="p-5"><div class="flex items-start justify-between mb-2"><div><h3 class="text-lg text-white font-semibold" style="font-family:'DM Serif Display',serif;">Dra. Fernanda Rocha</h3><p class="text-xs font-medium" style="color:var(--c-accent)">Psicóloga Infantil · CRP 11/54321</p></div><span class="text-2xl">🦋</span></div><p class="text-sm mb-4" style="color:var(--c-muted)">Especialista em psicologia infantil e adolescência. 12 anos de prática clínica.</p><div class="flex flex-col gap-2"><a href="https://wa.me/5598999993333" target="_blank" class="btn btn-green w-full text-center text-sm py-2.5">💬 WhatsApp</a><a href="tel:+5598999993333" class="btn btn-outline w-full text-center text-sm py-2.5">📞 Ligar</a></div></div></div>
+    </div>
+    <div class="mt-8 p-5 rounded-xl fade-up" style="background:rgba(45,212,191,0.06);border:1px solid rgba(45,212,191,0.25)"><p class="font-semibold mb-1" style="color:var(--c-teal)">📌 Para profissionais</p><p class="text-sm" style="color:var(--c-muted)">Você é psicólogo(a) em São Domingos do MA e quer aparecer aqui? Entre em contato para cadastrar seu perfil.</p></div>
+  </section>
+
+  <!-- DISTRAÇÕES -->
+  <section id="distracao-section" class="content-section hidden">
+    <div class="max-w-2xl mx-auto">
+      <div class="mb-8 fade-up"><h2 class="text-4xl text-white mb-2">🎯 Mural de Distrações Positivas</h2><p style="color:var(--c-muted)">Momentos difíceis pedem pequenas gentilezas.</p></div>
+      <div id="distraction-card" class="fade-up d1 mb-6"><div id="distraction-icon" class="text-6xl mb-4">🌱</div><h3 id="distraction-title" class="text-2xl text-white mb-3" style="font-family:'DM Serif Display',serif;">Carregando...</h3><p id="distraction-desc" class="text-base mb-2" style="color:var(--c-muted)"></p><p id="distraction-duration" class="text-sm font-semibold" style="color:var(--c-teal)"></p></div>
+      <div class="flex gap-3 mb-8 fade-up d2"><button id="new-distraction-btn" class="btn btn-primary flex-1 py-3 text-base">✨ Gerar Nova Sugestão</button><button id="save-distraction-btn" class="btn btn-outline py-3 px-5">🔖 Salvar</button></div>
+      <div class="mb-6 fade-up d2"><p class="text-sm font-semibold mb-3 text-white">Filtrar por tipo:</p><div class="flex flex-wrap gap-2"><button class="distraction-filter btn btn-primary text-xs px-3 py-2" data-cat="all">Todas</button><button class="distraction-filter btn btn-outline text-xs px-3 py-2" data-cat="corpo">🏃 Corpo</button><button class="distraction-filter btn btn-outline text-xs px-3 py-2" data-cat="mente">🧠 Mente</button><button class="distraction-filter btn btn-outline text-xs px-3 py-2" data-cat="criatividade">🎨 Criatividade</button><button class="distraction-filter btn btn-outline text-xs px-3 py-2" data-cat="social">💬 Social</button><button class="distraction-filter btn btn-outline text-xs px-3 py-2" data-cat="respiracao">🌬️ Respiração</button></div></div>
+      <div class="card p-6 fade-up d3"><h3 class="text-xl text-white mb-4">🔖 Sugestões Salvas</h3><div id="saved-distractions" class="space-y-3"><p class="text-sm text-center py-4" style="color:var(--c-muted)">Nenhuma sugestão salva ainda.</p></div></div>
+    </div>
+  </section>
+
+  <!-- SOS -->
+  <section id="emergency-section" class="content-section hidden">
+    <div class="card p-8 fade-up">
+      <h2 class="text-3xl text-white mb-6">🛟 Kit de Crise — Técnicas SOS</h2>
+      <p class="mb-10" style="color:var(--c-muted)">Se você está passando por um momento difícil, estas técnicas podem ajudar agora mesmo:</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+        <button class="text-left border-2 p-6 rounded-xl transition" style="border-color:var(--c-border)" onmouseover="this.style.borderColor='rgba(45,212,191,0.6)'" onmouseout="this.style.borderColor='var(--c-border)'"><h3 class="text-xl text-white mb-2 font-semibold">🌬️ Respiração 4-4-4</h3><p class="text-sm" style="color:var(--c-muted)">Respire lentamente para acalmar o sistema nervoso</p></button>
+        <button class="text-left border-2 p-6 rounded-xl transition" style="border-color:var(--c-border)" onmouseover="this.style.borderColor='rgba(34,197,94,0.6)'" onmouseout="this.style.borderColor='var(--c-border)'"><h3 class="text-xl text-white mb-2 font-semibold">🌍 Técnica 5-4-3-2-1</h3><p class="text-sm" style="color:var(--c-muted)">Conecte-se ao presente pelos 5 sentidos</p></button>
+        <button class="text-left border-2 p-6 rounded-xl transition" style="border-color:var(--c-border)" onmouseover="this.style.borderColor='rgba(251,191,36,0.6)'" onmouseout="this.style.borderColor='var(--c-border)'"><h3 class="text-xl text-white mb-2 font-semibold">💪 Relaxamento Muscular</h3><p class="text-sm" style="color:var(--c-muted)">Libere tensão física progressivamente</p></button>
+        <button class="text-left border-2 p-6 rounded-xl transition" style="border-color:var(--c-border)" onmouseover="this.style.borderColor='rgba(96,165,250,0.6)'" onmouseout="this.style.borderColor='var(--c-border)'"><h3 class="text-xl text-white mb-2 font-semibold">💧 Água Gelada</h3><p class="text-sm" style="color:var(--c-muted)">Estimule sua resposta natural de calma com água fria no rosto</p></button>
+      </div>
+      <div class="p-6 rounded-xl" style="background:rgba(244,63,94,0.08);border:1.5px solid rgba(244,63,94,0.35)">
+        <p class="font-semibold" style="color:var(--c-rose)">⚠️ Se você está em risco imediato:</p>
+        <p class="mt-3 text-sm" style="color:rgba(251,113,133,0.85)">📞 Ligue para o CVV: <strong>188</strong> (disponível 24h, gratuito)</p>
+        <p class="text-sm" style="color:rgba(251,113,133,0.85)">🆘 Ou procure o pronto-socorro mais próximo</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<!-- MODAL FEEDBACK -->
+<div id="feedback-modal" class="hidden fixed inset-0 modal-overlay flex items-center justify-center z-50">
+  <div class="card p-8 max-w-sm w-full mx-4 text-center fade-up" style="background:linear-gradient(135deg,#0f2744,#0d1b2a)">
+    <div class="text-5xl mb-4" id="feedback-icon">✅</div>
+    <h3 id="feedback-title" class="text-2xl text-white mb-2">Sucesso!</h3>
+    <p id="feedback-message" class="mb-6" style="color:var(--c-muted)">Ação completada com sucesso</p>
+    <button onclick="closeFeedbackModal()" class="btn btn-primary w-full">Fechar</button>
+  </div>
+</div>
+
+<script>
+let allRecords = [];
+let isAuthenticated = false;
+let currentDistractionFilter = 'all';
+let currentDistraction = null;
+let savedDistractions = JSON.parse(localStorage.getItem('nm_saved_distractions') || '[]');
+let sleepHistory = JSON.parse(localStorage.getItem('nm_sleep_history') || '[]');
+let checkinHistory = JSON.parse(localStorage.getItem('nm_checkin_history') || '[]');
+let breathInterval = null;
+let medIv = null;
+let audioCtx = null;
+let currentSrc = null;
+
+const distractions = [
+  {icon:'🌬️',title:'Respiração Box',desc:'Inspire por 4s, segure por 4s, expire por 4s, segure por 4s. Repita 4 vezes.',duration:'⏱ 2 minutos',cat:'respiracao'},
+  {icon:'🎵',title:'Ouça sua música favorita',desc:'Coloque aquela música que te faz sorrir. Apenas escute com atenção.',duration:'⏱ 3-5 minutos',cat:'mente'},
+  {icon:'✏️',title:'Faça um desenho rápido',desc:'Não precisa ser bonito! Desenhe o que você está vendo agora.',duration:'⏱ 5 minutos',cat:'criatividade'},
+  {icon:'🚶',title:'Caminhe pela casa',desc:'Levante-se e dê uma volta tranquila. Sinta o chão sob os seus pés.',duration:'⏱ 5 minutos',cat:'corpo'},
+  {icon:'💧',title:"Beba um copo d'água devagar",desc:'Beba lentamente, prestando atenção na temperatura e no sabor.',duration:'⏱ 1 minuto',cat:'mente'},
+  {icon:'📝',title:'Liste 3 coisas boas de hoje',desc:'Não precisam ser grandes feitos. Escreva em papel ou no celular.',duration:'⏱ 2 minutos',cat:'mente'},
+  {icon:'🤸',title:'Alongamento rápido',desc:'Estique os braços, role o pescoço, abane as mãos. Solte a tensão.',duration:'⏱ 3 minutos',cat:'corpo'},
+  {icon:'🌟',title:'Técnica 5-4-3-2-1',desc:'Nomeie 5 coisas que vê, 4 que pode tocar, 3 que ouve, 2 que cheira e 1 que pode provar.',duration:'⏱ 2 minutos',cat:'mente'},
+  {icon:'💃',title:'Dance por uma música',desc:'Coloque uma música animada e dance do jeito que quiser!',duration:'⏱ 3-4 minutos',cat:'corpo'},
+];
+
+function initializeApp() {
+  if(window.lucide) lucide.createIcons();
+  setupListeners();
+  checkUserSession();
+  document.getElementById('sleep-date').valueAsDate = new Date();
+  showDistraction();
+  renderSleepHistory();
+  renderCheckinHistory();
+  renderSavedDistractions();
+}
+
+function setupListeners() {
+  document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', switchTab));
+  document.getElementById('login-form').addEventListener('submit', handleLogin);
+  document.getElementById('signup-form').addEventListener('submit', handleSignup);
+  document.getElementById('switch-to-signup').addEventListener('click', e => { e.preventDefault(); switchAuthTab('signup'); });
+  document.getElementById('switch-to-login').addEventListener('click', e => { e.preventDefault(); switchAuthTab('login'); });
+  document.getElementById('monitor-form').addEventListener('submit', handleFormSubmit);
+  document.querySelectorAll('.mood-option').forEach(b => b.addEventListener('click', selectMood));
+  for(let i=1;i<=6;i++) document.querySelectorAll(`.anxiety-q${i}`).forEach(b => b.addEventListener('click', e => { e.preventDefault(); selectAnxietyAnswer(i,b); }));
+  document.getElementById('breathing-btn').addEventListener('click', startBreathing);
+  document.getElementById('breathing-stop-btn').addEventListener('click', stopBreathing);
+  document.getElementById('meditation-btn').addEventListener('click', startMeditation);
+  document.getElementById('meditation-stop-btn').addEventListener('click', stopMeditation);
+  document.getElementById('gratitude-btn').addEventListener('click', () => { showFeedback('💝','Gratidão Registrada!','Obrigado por praticar gratidão!'); document.getElementById('gratitude-input').value=''; });
+  document.getElementById('toggle-sounds-btn').addEventListener('click', toggleSounds);
+  document.querySelectorAll('.relaxing-sound-btn').forEach(b => b.addEventListener('click', playRelaxingSound));
+  document.getElementById('user-display').addEventListener('click', logout);
+  document.getElementById('calc-sleep-btn').addEventListener('click', calcSleep);
+  ['humor','ansiedade','disposicao'].forEach(id => {
+    const el = document.getElementById(`ci-${id}`);
+    const val = document.getElementById(`ci-${id}-val`);
+    el.addEventListener('input', () => val.textContent = el.value);
+  });
+  document.querySelectorAll('.ci-sleep-opt').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.ci-sleep-opt').forEach(x => { x.style.borderColor='var(--c-border)'; x.style.background='transparent'; });
+    b.style.borderColor='var(--c-blue)'; b.style.background='var(--c-blue-dim)';
+    document.getElementById('ci-sono').value = b.dataset.val;
+  }));
+  document.querySelectorAll('.ci-social-opt').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.ci-social-opt').forEach(x => { x.style.borderColor='var(--c-border)'; x.style.background='transparent'; });
+    b.style.borderColor='var(--c-blue)'; b.style.background='var(--c-blue-dim)';
+    document.getElementById('ci-social').value = b.dataset.val;
+  }));
+  document.getElementById('checkin-form').addEventListener('submit', handleCheckin);
+  document.getElementById('new-distraction-btn').addEventListener('click', () => showDistraction());
+  document.getElementById('save-distraction-btn').addEventListener('click', saveCurrentDistraction);
+  document.querySelectorAll('.distraction-filter').forEach(b => b.addEventListener('click', () => {
+    currentDistractionFilter = b.dataset.cat;
+    document.querySelectorAll('.distraction-filter').forEach(x => x.className='distraction-filter btn btn-outline text-xs px-3 py-2');
+    b.className='distraction-filter btn btn-primary text-xs px-3 py-2';
+    showDistraction();
+  }));
+  document.getElementById('meditate-btn').addEventListener('click', () => navigateTo('wellness'));
+}
+
+function checkUserSession() {
+  const user = localStorage.getItem('newmind_user');
+  if(user) {
+    isAuthenticated = true;
+    updateUserDisplay();
+    showSection('dashboard');
+    markNavActive('dashboard');
+    checkProfAlert();
+  }
+}
+
+function updateUserDisplay() {
+  const user = JSON.parse(localStorage.getItem('newmind_user') || '{}');
+  const name = user.name || user.email?.split('@')[0] || 'Usuário';
+  document.getElementById('user-display').innerHTML = `<span style="color:var(--c-accent);cursor:pointer" title="Clique para sair">👤 ${name}</span>`;
+  document.getElementById('progress-indicator').classList.remove('hidden');
+}
+
+function logout() {
+  if(!isAuthenticated) return;
+  localStorage.removeItem('newmind_user');
+  isAuthenticated = false;
+  document.getElementById('user-display').innerHTML = `<button class="nav-tab nav-active py-3 px-4 border-b-2 text-sm font-semibold" data-tab="auth">🔐 Login</button>`;
+  document.getElementById('progress-indicator').classList.add('hidden');
+  document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+  document.getElementById('auth-section').classList.remove('hidden');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('nav-active'));
+  showFeedback('👋','Desconectado','Até logo!');
+  document.querySelector('#user-display [data-tab="auth"]')?.addEventListener('click', switchTab);
+}
+
+function handleLogin(e) {
+  e.preventDefault();
+  const email = document.getElementById('login-email').value;
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showFeedback('⚠️','Email Inválido','Insira um email válido'); return; }
+  isAuthenticated = true;
+  localStorage.setItem('newmind_user', JSON.stringify({email}));
+  showFeedback('✅','Login Realizado!','Bem-vindo de volta!');
+  setTimeout(() => { updateUserDisplay(); showSection('dashboard'); markNavActive('dashboard'); document.getElementById('login-form').reset(); checkProfAlert(); closeFeedbackModal(); }, 1200);
+}
+
+function handleSignup(e) {
+  e.preventDefault();
+  const name=document.getElementById('signup-name').value, email=document.getElementById('signup-email').value,
+        pw=document.getElementById('signup-password').value, cf=document.getElementById('signup-confirm').value;
+  if(!name||!email||!pw||!cf) { showFeedback('⚠️','Campos Obrigatórios','Preencha todos os campos'); return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showFeedback('⚠️','Email Inválido','Insira um email válido'); return; }
+  if(pw!==cf) { showFeedback('⚠️','Senhas Diferentes','As senhas não conferem'); return; }
+  isAuthenticated = true;
+  localStorage.setItem('newmind_user', JSON.stringify({name, email}));
+  showFeedback('🎉','Conta Criada!','Bem-vindo à NEWMIND!');
+  setTimeout(() => { updateUserDisplay(); showSection('dashboard'); markNavActive('dashboard'); document.getElementById('signup-form').reset(); checkProfAlert(); closeFeedbackModal(); }, 1200);
+}
+
+function switchAuthTab(tab) {
+  document.getElementById('login-tab').classList.toggle('hidden', tab==='signup');
+  document.getElementById('signup-tab').classList.toggle('hidden', tab!=='signup');
+}
+
+function switchTab(e) {
+  const tab = e.currentTarget.dataset.tab;
+  if(!isAuthenticated && tab!=='auth') { showFeedback('🔐','Acesso Restrito','Faça login primeiro'); return; }
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('nav-active'));
+  e.currentTarget.classList.add('nav-active');
+  showSection(tab);
+}
+
+function showSection(name) {
+  document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+  const sec = document.getElementById(`${name}-section`);
+  if(sec) sec.classList.remove('hidden');
+}
+
+function markNavActive(tab) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('nav-active'));
+  document.querySelector(`.nav-tab[data-tab="${tab}"]`)?.classList.add('nav-active');
+}
+
+function navigateTo(tab) {
+  if(!isAuthenticated) return;
+  showSection(tab);
+  markNavActive(tab);
+}
+
+function selectMood(e) {
+  e.preventDefault();
+  document.querySelectorAll('.mood-option').forEach(b => b.style.borderColor='var(--c-border)');
+  e.currentTarget.style.borderColor='var(--c-blue)';
+  document.getElementById('mood-input').value = e.currentTarget.dataset.value;
+}
+
+function selectAnxietyAnswer(q, btn) {
+  const score = parseInt(btn.dataset.score);
+  document.querySelectorAll(`.anxiety-q${q}`).forEach(b => { b.style.borderColor='var(--c-border)'; b.removeAttribute('data-selected'); });
+  const colors = {0:'#22c55e',3:'#fbbf24',6:'#f97316',10:'#f43f5e'};
+  btn.style.borderColor = colors[score] || 'var(--c-blue)';
+  btn.setAttribute('data-selected','true');
+  calcAnxiety();
+}
+
+function calcAnxiety() {
+  let total=0, ans=0;
+  for(let i=1;i<=6;i++) { const s=document.querySelector(`.anxiety-q${i}[data-selected="true"]`); if(s){total+=parseInt(s.dataset.score);ans++;} }
+  if(ans===6) {
+    const lvl=(total/60)*10;
+    document.getElementById('anxiety-input').value=lvl;
+    document.getElementById('anxiety-value').textContent=lvl.toFixed(1);
+    document.querySelector('#calc-anxiety-bar > div').style.width=(lvl*10)+'%';
+  }
+}
+
+function handleFormSubmit(e) {
+  e.preventDefault();
+  const mood=document.getElementById('mood-input').value||'bom', anxiety=parseFloat(document.getElementById('anxiety-input').value)||0,
+        sleep=document.getElementById('sleep-input').value, notes=document.getElementById('notes-input').value;
+  if(!sleep) { showFeedback('⚠️','Campo obrigatório','Selecione a qualidade do sono'); return; }
+  let answered=0;
+  for(let i=1;i<=6;i++) if(document.querySelector(`.anxiety-q${i}[data-selected="true"]`)) answered++;
+  if(answered<6) { showFeedback('⚠️','Questionário incompleto','Responda todas as 6 perguntas'); return; }
+  allRecords.push({id:Date.now().toString(),date:new Date().toISOString(),mood,anxiety_level:anxiety,sleep_quality:sleep,notes});
+  updateStats();
+  document.getElementById('monitor-form').reset();
+  document.getElementById('mood-input').value='bom';
+  for(let i=1;i<=6;i++) document.querySelectorAll(`.anxiety-q${i}`).forEach(b=>{b.style.borderColor='var(--c-border)';b.removeAttribute('data-selected');});
+  document.getElementById('anxiety-input').value=0;
+  document.getElementById('anxiety-value').textContent='0';
+  document.querySelector('#calc-anxiety-bar > div').style.width='0%';
+  showFeedback('✅','Progresso Salvo!','Seus dados foram registrados');
+}
+
+function calcSleep() {
+  const start=document.getElementById('sleep-start').value, end=document.getElementById('sleep-end').value, date=document.getElementById('sleep-date').value;
+  if(!start||!end) { showFeedback('⚠️','Campos vazios','Informe os horários'); return; }
+  const [sh,sm]=start.split(':').map(Number),[eh,em]=end.split(':').map(Number);
+  let startMin=sh*60+sm, endMin=eh*60+em;
+  if(endMin<=startMin) endMin+=24*60;
+  const totalMin=endMin-startMin, hours=Math.floor(totalMin/60), mins=totalMin%60;
+  let cls,emoji,msg,tips=[];
+  if(totalMin<7*60){cls='sleep-bad';emoji='😴⚠️';msg=`Você dormiu ${hours}h${mins>0?` e ${mins}min`:''}. Abaixo do recomendado (7–9h).`;tips=['🕙 Tente dormir mais cedo.','📵 Desligue as telas 1 hora antes.','☕ Evite cafeína depois das 14h.'];}
+  else if(totalMin>9*60){cls='sleep-warn';emoji='😴💤';msg=`Você dormiu ${hours}h${mins>0?` e ${mins}min`:''}. Dormir demais também pode afetar a disposição.`;tips=['⏰ Tente acordar em horário fixo.','☀️ Exponha-se à luz natural logo ao acordar.'];}
+  else{cls='sleep-ok';emoji='😌✨';msg=`Parabéns! Você dormiu ${hours}h${mins>0?` e ${mins}min`:''}. Na faixa ideal (7–9h)!`;tips=['🌟 Continue mantendo esse horário regular.','💪 Um sono de qualidade melhora humor, memória e imunidade.'];}
+  const resultDiv=document.getElementById('sleep-result');
+  resultDiv.classList.remove('hidden');
+  resultDiv.innerHTML=`<div class="sleep-feedback-box ${cls}"><div class="flex items-start gap-3"><span class="text-3xl">${emoji}</span><div><p class="font-semibold text-lg mb-2">${msg}</p><ul class="space-y-1">${tips.map(t=>`<li class="text-sm opacity-80">• ${t}</li>`).join('')}</ul></div></div></div>`;
+  const entry={date,start,end,hours,mins,status:cls};
+  sleepHistory.unshift(entry); if(sleepHistory.length>10) sleepHistory=sleepHistory.slice(0,10);
+  localStorage.setItem('nm_sleep_history',JSON.stringify(sleepHistory)); renderSleepHistory();
+}
+
+function renderSleepHistory() {
+  const container=document.getElementById('sleep-history');
+  if(!sleepHistory.length){container.innerHTML='<p class="text-sm text-center py-4" style="color:var(--c-muted)">Nenhum registro ainda.</p>';return;}
+  const icons={'sleep-ok':'✅','sleep-warn':'⚠️','sleep-bad':'❌'};
+  container.innerHTML=sleepHistory.map(e=>`<div class="flex items-center justify-between p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid var(--c-border)"><div class="flex items-center gap-3"><span>${icons[e.status]||'😴'}</span><div><p class="text-sm font-semibold text-white">${e.date}</p><p class="text-xs" style="color:var(--c-muted)">${e.start} → ${e.end}</p></div></div><span class="font-bold text-sm" style="color:var(--c-accent)">${e.hours}h${e.mins>0?e.mins+'m':''}</span></div>`).join('');
+}
+
+function handleCheckin(e) {
+  e.preventDefault();
+  const humor=parseInt(document.getElementById('ci-humor').value), ansiedade=parseInt(document.getElementById('ci-ansiedade').value),
+        disposicao=parseInt(document.getElementById('ci-disposicao').value), sono=parseInt(document.getElementById('ci-sono').value), social=parseInt(document.getElementById('ci-social').value);
+  const wellbeingScore=humor+disposicao+sono+social, total=Math.round(((wellbeingScore-ansiedade+3)/22)*100);
+  let level,color,borderColor,title,desc,rec;
+  if(total>=70){level='Ótimo';color='#86efac';borderColor='rgba(34,197,94,0.4)';title='🌟 Você está bem!';desc='Seus indicadores de saúde mental estão positivos este mês.';rec=null;}
+  else if(total>=45){level='Moderado';color='#fde68a';borderColor='rgba(251,191,36,0.4)';title='🌤️ Atenção ao equilíbrio';desc='Você está passando por altos e baixos.';rec='Considere usar as ferramentas de bem-estar da NEWMIND.';}
+  else{level='Alerta';color='#fca5a5';borderColor='rgba(244,63,94,0.4)';title='💙 Cuide-se com prioridade';desc='Seus indicadores mostram um período desafiador.';rec='Recomendamos agendar uma conversa com um profissional.';}
+  const date=new Date().toLocaleDateString('pt-BR'), entry={date,humor,ansiedade,disposicao,sono,social,total,level};
+  checkinHistory.unshift(entry); if(checkinHistory.length>6) checkinHistory=checkinHistory.slice(0,6);
+  localStorage.setItem('nm_checkin_history',JSON.stringify(checkinHistory));
+  document.getElementById('checkin-result').classList.remove('hidden');
+  document.getElementById('checkin-result').innerHTML=`<div class="p-6 rounded-xl" style="border:1.5px solid ${borderColor};background:rgba(0,0,0,0.2)"><div class="flex items-center gap-4 mb-4"><div class="score-badge" style="border-color:${borderColor};color:${color}"><span class="text-2xl font-bold">${total}</span><span class="text-xs">/ 100</span></div><div><p class="text-xl font-semibold text-white">${title}</p><p class="text-sm font-medium" style="color:${color}">${level}</p></div></div><p class="text-sm mb-3" style="color:var(--c-muted)">${desc}</p>${rec?`<div class="p-3 rounded-lg mt-3 text-sm" style="background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.3);color:#fde68a">💡 ${rec}</div>`:''}</div>`;
+  renderCheckinHistory(); checkProfAlert();
+}
+
+function renderCheckinHistory() {
+  const container=document.getElementById('checkin-history');
+  if(!checkinHistory.length){container.innerHTML='<p class="text-sm text-center py-4" style="color:var(--c-muted)">Nenhum check-in registrado.</p>';return;}
+  const colors={'Ótimo':'#86efac','Moderado':'#fde68a','Alerta':'#fca5a5'};
+  container.innerHTML=checkinHistory.map(e=>`<div class="flex items-center justify-between p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid var(--c-border)"><div><p class="text-sm font-semibold text-white">${e.date}</p><p class="text-xs" style="color:var(--c-muted)">Humor ${e.humor}/5 · Ansiedade ${e.ansiedade}/5</p></div><div class="text-right"><p class="font-bold text-sm" style="color:${colors[e.level]||'var(--c-accent)'}">${e.total}/100</p><p class="text-xs" style="color:${colors[e.level]||'var(--c-muted)'}">${e.level}</p></div></div>`).join('');
+}
+
+function checkProfAlert() {
+  const alertDiv=document.getElementById('prof-alert'); if(!alertDiv) return;
+  if(checkinHistory.length<2){alertDiv.classList.add('hidden');return;}
+  const lowCount=checkinHistory.filter(e=>e.total<45).length;
+  if(lowCount>=2&&lowCount/checkinHistory.length>=0.5) alertDiv.classList.remove('hidden');
+  else alertDiv.classList.add('hidden');
+}
+
+function showDistraction() {
+  const pool=currentDistractionFilter==='all'?distractions:distractions.filter(d=>d.cat===currentDistractionFilter);
+  if(!pool.length) return;
+  const d=pool[Math.floor(Math.random()*pool.length)];
+  currentDistraction=d;
+  const card=document.getElementById('distraction-card');
+  card.style.opacity='0'; card.style.transform='translateY(8px)';
+  setTimeout(()=>{
+    document.getElementById('distraction-icon').textContent=d.icon;
+    document.getElementById('distraction-title').textContent=d.title;
+    document.getElementById('distraction-desc').textContent=d.desc;
+    document.getElementById('distraction-duration').textContent=d.duration;
+    card.style.transition='all .35s ease'; card.style.opacity='1'; card.style.transform='translateY(0)';
+  },150);
+}
+
+function saveCurrentDistraction() {
+  if(!currentDistraction) return;
+  if(savedDistractions.find(s=>s.title===currentDistraction.title)){showFeedback('ℹ️','Já salvo!','Esta sugestão já está na sua lista.');return;}
+  savedDistractions.push(currentDistraction);
+  localStorage.setItem('nm_saved_distractions',JSON.stringify(savedDistractions));
+  renderSavedDistractions(); showFeedback('🔖','Salvo!','Sugestão adicionada à sua lista.');
+}
+
+function renderSavedDistractions() {
+  const container=document.getElementById('saved-distractions');
+  if(!savedDistractions.length){container.innerHTML='<p class="text-sm text-center py-4" style="color:var(--c-muted)">Nenhuma sugestão salva ainda.</p>';return;}
+  container.innerHTML=savedDistractions.map((d,i)=>`<div class="flex items-center justify-between p-3 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid var(--c-border)"><div class="flex items-center gap-3"><span class="text-2xl">${d.icon}</span><div><p class="text-sm font-semibold text-white">${d.title}</p><p class="text-xs" style="color:var(--c-muted)">${d.duration}</p></div></div><button onclick="removeSaved(${i})" class="text-xs px-2 py-1 rounded" style="color:var(--c-rose);border:1px solid rgba(244,63,94,0.3)">✕</button></div>`).join('');
+}
+
+function removeSaved(i) {
+  savedDistractions.splice(i,1);
+  localStorage.setItem('nm_saved_distractions',JSON.stringify(savedDistractions));
+  renderSavedDistractions();
+}
+
+function updateStats() {
+  if(!allRecords.length) return;
+  const latest=allRecords[allRecords.length-1];
+  const emojis={'muito ruim':'😭','ruim':'😢','neutro':'😐','bom':'🙂','excelente':'😄'};
+  const sleepEmojis={'muito ruim':'😴❌','ruim':'😴','regular':'😐','bom':'😴✓','excelente':'😴✨'};
+  document.getElementById('mood-status').textContent=emojis[latest.mood]||'😊';
+  document.getElementById('mood-text').textContent=latest.mood||'—';
+  document.getElementById('anxiety-bar-fill').style.width=(latest.anxiety_level*10)+'%';
+  document.getElementById('anxiety-text').textContent=latest.anxiety_level+'/10';
+  document.getElementById('sleep-status').textContent=sleepEmojis[latest.sleep_quality]||'😴';
+  document.getElementById('sleep-text').textContent=latest.sleep_quality||'—';
+  document.getElementById('total-records').textContent=allRecords.length;
+  const moodCounts={'muito ruim':0,'ruim':0,'neutro':0,'bom':0,'excelente':0};
+  allRecords.forEach(r=>{if(moodCounts[r.mood]!==undefined)moodCounts[r.mood]++;});
+  const dom=Object.keys(moodCounts).reduce((a,b)=>moodCounts[a]>moodCounts[b]?a:b);
+  document.getElementById('dominant-mood-emoji').textContent=emojis[dom]||'😊';
+  document.getElementById('dominant-mood-text').textContent=dom.charAt(0).toUpperCase()+dom.slice(1);
+  const avg=allRecords.reduce((s,r)=>s+(r.anxiety_level||0),0)/allRecords.length;
+  document.getElementById('avg-anxiety-bar-fill').style.width=(avg*10)+'%';
+  document.getElementById('avg-anxiety-value').textContent=avg.toFixed(1)+'/10';
+  document.getElementById('recent-entries').innerHTML=allRecords.slice(-5).reverse().map(r=>`<div class="p-4 rounded-xl" style="background:rgba(255,255,255,0.03);border:1px solid var(--c-border)"><div class="flex justify-between items-start"><div class="flex gap-3"><span class="text-2xl">${emojis[r.mood]||'😊'}</span><div><p class="font-semibold text-white text-sm">${r.mood||'N/A'}</p><p class="text-xs" style="color:var(--c-muted)">Ansiedade ${r.anxiety_level}/10 · Sono: ${r.sleep_quality}</p>${r.notes?`<p class="text-xs italic mt-1" style="color:var(--c-muted)">"${r.notes}"</p>`:''}</div></div><p class="text-xs" style="color:var(--c-muted)">${new Date(r.date).toLocaleDateString('pt-BR')}</p></div></div>`).join('');
+  document.getElementById('progress-percent').textContent=Math.round(Math.min((allRecords.length/30)*100,100))+'%';
+}
+
+function startBreathing() {
+  if(breathInterval) clearInterval(breathInterval);
+  const circle=document.getElementById('breathing-circle'), timerEl=document.getElementById('breathing-timer'),
+        phaseLabel=document.getElementById('breath-phase-label'), btn=document.getElementById('breathing-btn'),
+        stopBtn=document.getElementById('breathing-stop-btn'),
+        bc=[document.getElementById('bc-1'),document.getElementById('bc-2'),document.getElementById('bc-3')];
+  const phases=[{label:'Inspire',top:'● INSPIRANDO',color:'#2dd4bf',dur:4,cls:'phase-inspire'},{label:'Segure',top:'◆ SEGURANDO',color:'#fbbf24',dur:4,cls:'phase-hold'},{label:'Expire',top:'● EXPIRANDO',color:'#93c5fd',dur:4,cls:'phase-expire'}];
+  let cycle=0,phaseIdx=0,countdown=phases[0].dur;
+  bc.forEach(d=>d.style.background='rgba(255,255,255,0.12)');
+  btn.classList.add('hidden'); stopBtn.classList.remove('hidden');
+  function applyPhase(){const p=phases[phaseIdx];circle.className=p.cls;circle.textContent=p.label;phaseLabel.textContent=p.top;phaseLabel.style.color=p.color;timerEl.style.color=p.color;}
+  function tick(){
+    if(countdown>0){timerEl.textContent=countdown;countdown--;return;}
+    phaseIdx++;
+    if(phaseIdx>=phases.length){phaseIdx=0;cycle++;if(cycle<=3&&bc[cycle-1]){bc[cycle-1].style.background='#2dd4bf';bc[cycle-1].style.boxShadow='0 0 8px rgba(45,212,191,0.6)';}if(cycle>=3){finishBreathing();return;}}
+    countdown=phases[phaseIdx].dur;applyPhase();timerEl.textContent=countdown;countdown--;
+  }
+  applyPhase();timerEl.textContent=countdown;countdown--;
+  breathInterval=setInterval(tick,1000);
+}
+
+function finishBreathing() {
+  clearInterval(breathInterval);breathInterval=null;
+  const circle=document.getElementById('breathing-circle'),timerEl=document.getElementById('breathing-timer'),phaseLabel=document.getElementById('breath-phase-label');
+  circle.className='';circle.textContent='Muito bem! ✨';timerEl.textContent='-';timerEl.style.color='var(--c-teal)';phaseLabel.textContent='✅ COMPLETO';phaseLabel.style.color='#86efac';
+  document.getElementById('breathing-btn').classList.remove('hidden');document.getElementById('breathing-stop-btn').classList.add('hidden');
+  showFeedback('🌬️','Exercício Completo!','3 ciclos concluídos. Seu sistema nervoso agradece!');
+  setTimeout(()=>{circle.textContent='Pronto?';phaseLabel.textContent='';document.querySelectorAll('#breath-cycles div').forEach(d=>{d.style.background='rgba(255,255,255,0.12)';d.style.boxShadow='none';});},3000);
+}
+
+function stopBreathing() {
+  clearInterval(breathInterval);breathInterval=null;
+  const circle=document.getElementById('breathing-circle'),timerEl=document.getElementById('breathing-timer'),phaseLabel=document.getElementById('breath-phase-label');
+  circle.className='';circle.textContent='Pronto?';timerEl.textContent='-';timerEl.style.color='var(--c-teal)';phaseLabel.textContent='';
+  document.getElementById('breathing-btn').classList.remove('hidden');document.getElementById('breathing-stop-btn').classList.add('hidden');
+  document.querySelectorAll('#breath-cycles div').forEach(d=>{d.style.background='rgba(255,255,255,0.12)';d.style.boxShadow='none';});
+}
+
+function startMeditation() {
+  let time=300;
+  document.getElementById('meditation-btn').classList.add('hidden');document.getElementById('meditation-stop-btn').classList.remove('hidden');
+  medIv=setInterval(()=>{time--;const m=Math.floor(time/60),s=time%60;document.getElementById('meditation-timer').textContent=`${m}:${String(s).padStart(2,'0')}`;
+    if(time===0){clearInterval(medIv);document.getElementById('meditation-btn').classList.remove('hidden');document.getElementById('meditation-stop-btn').classList.add('hidden');document.getElementById('meditation-timer').textContent='-';showFeedback('✅','Meditação Completa!','Ótimo trabalho!');}},1000);
+}
+
+function stopMeditation() {
+  clearInterval(medIv);document.getElementById('meditation-btn').classList.remove('hidden');document.getElementById('meditation-stop-btn').classList.add('hidden');document.getElementById('meditation-timer').textContent='-';
+}
+
+function toggleSounds() {
+  document.getElementById('sounds-container').classList.toggle('hidden');
+  document.getElementById('toggle-sounds-btn').textContent=document.getElementById('sounds-container').classList.contains('hidden')?'Ver Sons':'Ocultar Sons';
+}
+
+function getAudioCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+
+function genBrownNoise(dur=15){const ctx=getAudioCtx(),buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate),d=buf.getChannelData(0);let last=0;for(let i=0;i<buf.length;i++){const w=Math.random()*2-1;last=(last+w*0.02)*0.98;d[i]=last*0.5;}return buf;}
+function genThunder(){const ctx=getAudioCtx(),dur=15,buf=ctx.createBuffer(1,ctx.sampleRate*dur,ctx.sampleRate),d=buf.getChannelData(0);for(let i=0;i<buf.length;i++){const t=i/ctx.sampleRate;let r=0;for(let j=0;j<3;j++)r+=Math.random()*2-1;r/=3;let th=0;if(Math.sin(t*Math.PI*0.3)>0.95){const f=50+Math.random()*100;th=Math.sin(t*Math.PI*2*f)*Math.exp(-t*0.5)*0.8;}const w=Math.sin(t*Math.PI*2*(200+Math.sin(t*Math.PI*.5)*100))*0.3*Math.sin(t*Math.PI*.2);d[i]=(r*.4+th*.4+w*.2)*.6;}return buf;}
+
+function playRelaxingSound(e) {
+  e.preventDefault();const s=e.currentTarget.dataset.sound;const ctx=getAudioCtx(),now=ctx.currentTime;
+  if(currentSrc){currentSrc.stop();currentSrc=null;}
+  const buf=s==='ocean'?genBrownNoise(15):genThunder();const src=ctx.createBufferSource();src.buffer=buf;
+  const gain=ctx.createGain();gain.gain.setValueAtTime(.4,now);gain.gain.exponentialRampToValueAtTime(.01,now+300);
+  src.connect(gain);gain.connect(ctx.destination);src.loop=true;src.start(now);currentSrc=src;
+  showFeedback(s==='ocean'?'🌊':'⛈️',s==='ocean'?'Ruído Marrom':'Trovoada','Tocando por 5 minutos...');
+  setTimeout(()=>{if(currentSrc===src){currentSrc.stop();currentSrc=null;}},300000);
+}
+
+function showFeedback(icon,title,msg){document.getElementById('feedback-icon').textContent=icon;document.getElementById('feedback-title').textContent=title;document.getElementById('feedback-message').textContent=msg;document.getElementById('feedback-modal').classList.remove('hidden');}
+function closeFeedbackModal(){document.getElementById('feedback-modal').classList.add('hidden');}
+
+document.addEventListener('DOMContentLoaded', initializeApp);
+</script>
+</body>
+</html>
